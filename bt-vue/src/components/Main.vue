@@ -1,56 +1,183 @@
 <template>
    <v-app id="inspire">
+      <v-btn
+         id="control"
+         @click="addWindow = !addWindow"
+         x-large
+         rounded
+         dark
+         class="green darken-3"
+      >
+         <i class="large material-icons" style="font-size: 50px">add</i>
+      </v-btn>
+
       <v-app-bar app color="white" flat>
          <v-avatar
-            :color="
-               $vuetify.breakpoint.smAndDown ? 'grey darken-1' : 'transparent'
-            "
+            :color="$vuetify.breakpoint.smAndDown ? 'black' : 'transparent'"
             size="32"
          ></v-avatar>
 
-         <v-tabs centered class="ml-n9" color="grey darken-1">
-            <v-tab v-for="link in links" :key="link">
+         <v-tabs @change="updateTab()" centered class="ml-n9" color="black">
+            <v-tab @click="changeTab(link)" v-for="link in links" :key="link">
                {{ link }}
             </v-tab>
          </v-tabs>
 
          <v-avatar
             class="hidden-sm-and-down"
-            color="grey darken-1 shrink"
+            color="grey darken-3 shrink"
             size="32"
          ></v-avatar>
       </v-app-bar>
 
-      <v-main class="grey lighten-3">
-         <v-container>
-            <v-row>
-               <v-col cols="12" sm="2">
-                  <v-sheet rounded="lg" min-height="268">
-                     <!--  -->
-                  </v-sheet>
-               </v-col>
+      <v-main class="grey lighten-3 px-10">
+         <v-row justify="center" align="center">
+            <v-flex xs9>
+               <div
+                  v-for="task in tasks"
+                  :key="task.id"
+                  style="margin-bottom: 15px"
+               >
+                  <v-card>
+                     <v-card-title primary-title>
+                        <div>
+                           <div>{{ task.description }}</div>
+                        </div>
+                     </v-card-title>
 
-               <v-col cols="12" sm="8">
-                  <v-sheet min-height="70vh" rounded="lg">
-                     <!--  -->
-                  </v-sheet>
-               </v-col>
-
-               <v-col cols="12" sm="2">
-                  <v-sheet rounded="lg" min-height="268">
-                     <!--  -->
-                  </v-sheet>
-               </v-col>
-            </v-row>
-         </v-container>
+                     <v-card-actions>
+                        <v-btn text dark color="green">Complete</v-btn>
+                        <v-btn
+                           @click="deleteTask(task.id)"
+                           text
+                           dark
+                           color="red"
+                           >Delete</v-btn
+                        >
+                     </v-card-actions>
+                  </v-card>
+                  <v-container dark class="grey"></v-container>
+               </div>
+            </v-flex>
+         </v-row>
       </v-main>
+      <AddTask
+         @closed="
+            addWindow = false;
+            getProjects();
+            getTasks();
+         "
+         v-if="addWindow"
+         :project="openTab"
+      />
    </v-app>
 </template>
 
 <script>
+import AddTask from './AddTask.vue';
+
 export default {
+   components: {
+      AddTask,
+   },
    data: () => ({
-      links: ['Dashboard', 'Messages', 'Profile', 'Updates'],
+      links: [],
+      tasks: [],
+      openTab: '',
+      addWindow: false,
    }),
+   mounted: async function() {
+      await this.getProjects();
+      this.openTab = this.links[0];
+      this.getTasks();
+   },
+   methods: {
+      updateTab() {
+         const index = Math.max(this.links.length - 1, 0);
+         this.openTab = this.links[index];
+         this.getTasks();
+      },
+      changeTab(tab) {
+         this.openTab = tab;
+         this.getTasks();
+      },
+      async getProjects() {
+         const axios = require('axios');
+         let data = null;
+
+         //Get Projects
+         await axios
+            .get('http://localhost/BugTracker/getProjects.php')
+            .then(function(response) {
+               data = response.data;
+            })
+            .catch(function(error) {
+               // handle error
+               console.log(error);
+            });
+
+         //Format into links
+         this.links = [];
+         data.forEach((element) => {
+            let temp = JSON.parse(element);
+            this.links.push(temp.project);
+         });
+      },
+      async getTasks() {
+         const axios = require('axios');
+         let data = null;
+
+         //Get Tasks
+         await axios
+            .get(
+               'http://localhost/BugTracker/getTasks.php' +
+                  '?project=' +
+                  this.openTab
+            )
+            .then(function(response) {
+               data = response.data;
+            })
+            .catch(function(error) {
+               // handle error
+               console.log(error);
+            });
+
+         //Format as a task obj
+         this.tasks = [];
+         data.forEach((task) => {
+            task = JSON.parse(task);
+            let obj = {
+               id: task.id,
+               description: task.description,
+            };
+            this.tasks.push(obj);
+         });
+      },
+      async deleteTask(id) {
+         const axios = require('axios');
+
+         //Delete Task
+         const params = '?id=' + id;
+         await axios
+            .get('http://localhost/BugTracker/deleteTask.php' + params)
+            .then(function() {})
+            .catch(function(error) {
+               // handle error
+               console.log(error);
+            });
+
+         await this.getProjects();
+         this.getTasks();
+      },
+   },
 };
 </script>
+
+<style scoped>
+#control {
+   margin-left: calc(100% - 120px);
+   margin-top: calc(100% - 510px);
+   position: fixed;
+   z-index: 1;
+}
+</style>

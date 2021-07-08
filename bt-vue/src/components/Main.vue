@@ -34,6 +34,14 @@
                Log out
             </v-btn>
          </div>
+         <v-avatar
+            style="margin-left: 5px;"
+            size="45"
+            color="white"
+            v-if="$auth.isAuthenticated"
+         >
+            <img :src="this.$auth.user.picture" />
+         </v-avatar>
       </v-app-bar>
 
       <v-main class="grey lighten-3 px-10">
@@ -150,6 +158,7 @@ export default {
          });
       },
       async getTasks() {
+         console.log(this.$auth.user);
          const axios = require('axios');
          let data = null;
 

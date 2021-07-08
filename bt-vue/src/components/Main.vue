@@ -17,7 +17,7 @@
             size="32"
          ></v-avatar>
 
-         <v-tabs @change="updateTab()" centered class="ml-n9" color="black">
+         <v-tabs centered class="ml-n9" color="black">
             <v-tab @click="changeTab(link)" v-for="link in links" :key="link">
                {{ link }}
             </v-tab>
@@ -33,6 +33,16 @@
       <v-main class="grey lighten-3 px-10">
          <v-row justify="center" align="center">
             <v-flex xs9>
+               <v-icon
+                  @click="
+                     tasks = [];
+                     getTasks();
+                  "
+                  large
+                  style="margin-left: calc(50% - 30px); margin-bottom: 15px"
+                  >refresh</v-icon
+               >
+
                <div
                   v-for="task in tasks"
                   :key="task.id"
@@ -147,7 +157,7 @@ export default {
          data.forEach((task) => {
             task = JSON.parse(task);
             let obj = {
-               id: task.id,
+               id: task.task_id,
                description: task.description,
             };
             this.tasks.push(obj);
@@ -166,6 +176,12 @@ export default {
                console.log(error);
             });
 
+         //If a project has been emptied
+         if (this.tasks.length <= 1) {
+            this.openTab = this.links[Math.max(this.links.length - 1, 0)];
+         }
+
+         //Refresh
          await this.getProjects();
          this.getTasks();
       },
@@ -175,8 +191,8 @@ export default {
 
 <style scoped>
 #control {
-   margin-left: calc(100% - 120px);
-   margin-top: calc(100% - 510px);
+   margin-left: calc(100vw - 115px);
+   margin-top: calc(100vh - 120px);
    position: fixed;
    z-index: 1;
 }

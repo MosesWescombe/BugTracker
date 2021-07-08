@@ -79,7 +79,6 @@ export default {
          }
       },
       async submitWindow() {
-         console.log(this.level);
          if (this.description == '') {
             alert('You must add a description');
          } else {
@@ -98,7 +97,7 @@ export default {
             this.description +
             '&project=' +
             this.projectInput;
-         console.log('http://localhost/BugTracker/addTask.php' + params);
+
          await axios
             .get('http://localhost/BugTracker/addTask.php' + params)
             .then(function(response) {

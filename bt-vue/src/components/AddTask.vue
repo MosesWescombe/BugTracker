@@ -96,10 +96,14 @@ export default {
             '&description=' +
             this.description +
             '&project=' +
-            this.projectInput;
+            this.projectInput +
+            '&confirm=confirm';
 
          await axios
-            .get('http://localhost/BugTracker/addTask.php' + params)
+            .get(
+               'http://addtask-env-1.eba-ypi3dtjm.ap-southeast-2.elasticbeanstalk.com/' +
+                  params
+            )
             .then(function(response) {
                console.log(response);
             })

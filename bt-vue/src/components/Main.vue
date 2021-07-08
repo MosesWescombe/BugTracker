@@ -17,12 +17,19 @@
             size="32"
          ></v-avatar>
 
-         <v-tabs centered class="ml-n9" color="black">
+         <v-tabs centered style="margin-left: 72px;" color="black">
             <v-tab @click="changeTab(link)" v-for="link in links" :key="link">
                {{ link }}
             </v-tab>
          </v-tabs>
 
+         <v-avatar
+            style="margin-left: 5px;"
+            size="45"
+            color="white"
+            v-if="!$auth.isAuthenticated"
+         >
+         </v-avatar>
          <!-- Check that the SDK client is not currently loading before accessing is methods -->
          <div v-if="!$auth.loading">
             <!-- show login when not authenticated -->
@@ -141,7 +148,9 @@ export default {
 
          //Get Projects
          await axios
-            .get('http://localhost/BugTracker/getProjects.php')
+            .get(
+               'http://getprojects-env-1.eba-2t6dy9pv.ap-southeast-2.elasticbeanstalk.com/'
+            )
             .then(function(response) {
                data = response.data;
             })
@@ -165,7 +174,7 @@ export default {
          //Get Tasks
          await axios
             .get(
-               'http://localhost/BugTracker/getTasks.php' +
+               'http://gettasks-env.eba-8nbkpgir.ap-southeast-2.elasticbeanstalk.com' +
                   '?project=' +
                   this.openTab
             )
@@ -194,7 +203,10 @@ export default {
          //Delete Task
          const params = '?id=' + id;
          await axios
-            .get('http://localhost/BugTracker/deleteTask.php' + params)
+            .get(
+               'http://deletetask-env-1.eba-xcp2bmju.ap-southeast-2.elasticbeanstalk.com/' +
+                  params
+            )
             .then(function() {})
             .catch(function(error) {
                // handle error

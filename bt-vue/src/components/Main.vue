@@ -23,11 +23,17 @@
             </v-tab>
          </v-tabs>
 
-         <v-avatar
-            class="hidden-sm-and-down"
-            color="grey darken-3 shrink"
-            size="32"
-         ></v-avatar>
+         <!-- Check that the SDK client is not currently loading before accessing is methods -->
+         <div v-if="!$auth.loading">
+            <!-- show login when not authenticated -->
+            <v-btn text v-if="!$auth.isAuthenticated" @click="login"
+               >Log in</v-btn
+            >
+            <!-- show logout when authenticated -->
+            <v-btn text v-if="$auth.isAuthenticated" @click="logout">
+               Log out
+            </v-btn>
+         </div>
       </v-app-bar>
 
       <v-main class="grey lighten-3 px-10">
@@ -102,6 +108,16 @@ export default {
       this.getTasks();
    },
    methods: {
+      // Log the user in
+      login() {
+         this.$auth.loginWithRedirect();
+      },
+      // Log the user out
+      logout() {
+         this.$auth.logout({
+            returnTo: window.location.origin,
+         });
+      },
       updateTab() {
          const index = Math.max(this.links.length - 1, 0);
          this.openTab = this.links[index];

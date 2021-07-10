@@ -16,8 +16,9 @@ if ($conn->connect_error) {
 //Get all users
 $id = "'" . $_GET['id'] . "'";
 $result = $conn->query("DELETE FROM Tasks WHERE task_id = $id;");
+$result = $conn->query("DELETE FROM Links WHERE task_id = $id;");
 
-echo "Ran";
+echo "Success";
 
 //Close
 mysqli_close($conn);

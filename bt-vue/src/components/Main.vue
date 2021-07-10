@@ -77,7 +77,13 @@
                      </v-card-title>
 
                      <v-card-actions>
-                        <v-btn text dark color="green">Complete</v-btn>
+                        <v-btn
+                           @click="deleteTask(task.id)"
+                           text
+                           dark
+                           color="green"
+                           >Complete</v-btn
+                        >
                         <v-btn
                            @click="deleteTask(task.id)"
                            text
@@ -167,7 +173,6 @@ export default {
          });
       },
       async getTasks() {
-         console.log(this.$auth.user);
          const axios = require('axios');
          let data = null;
 
@@ -202,12 +207,12 @@ export default {
 
          //Delete Task
          const params = '?id=' + id;
+         console.log(params);
          await axios
             .get(
                'http://deletetask-env-1.eba-xcp2bmju.ap-southeast-2.elasticbeanstalk.com/' +
                   params
             )
-            .then(function() {})
             .catch(function(error) {
                // handle error
                console.log(error);

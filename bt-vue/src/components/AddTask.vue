@@ -3,27 +3,52 @@
       <v-dialog v-model="open" width="500">
          <v-card>
             <v-card-title class="headline grey lighten-2" primary-title>
-               Add Task - {{ project }}
+               Add Task
             </v-card-title>
 
             <form class="add-form">
+               <!-- Importance -->
                <div class="form-control">
                   <label>Importance</label>
-                  <select id="country" v-model="level" name="level">
+                  <select v-model="level" name="level">
                      <option value="1">1</option>
                      <option value="2">2</option>
                      <option value="3">3</option>
                      <option value="4">4</option>
                   </select>
                </div>
+               <!-- Project folder -->
                <div class="form-control">
                   <label>Project</label>
-                  <input
-                     type="text"
-                     v-model="projectInput"
-                     name="projectInput"
-                  />
+                  <input type="text" v-model="projectInput" name="project" />
                </div>
+               <!-- Add Users -->
+               <div class="form-control">
+                  <label left>Add Users - (By Email)</label>
+
+                  <input
+                     style="width: 89%"
+                     type="text"
+                     v-model="usersInput"
+                     name="usersInput"
+                  />
+                  <v-btn @click="addUser()" icon color="green" large
+                     ><i class="large material-icons" style="font-size: 50px"
+                        >add</i
+                     ></v-btn
+                  >
+                  <div style="display: flex; flex-wrap: wrap;">
+                     <v-chip
+                        class="ml-1 mb-1"
+                        @click="removeUser(index)"
+                        v-for="(user, index) in users"
+                        :key="index"
+                        :v-model="users[index]"
+                        >{{ user }}</v-chip
+                     >
+                  </div>
+               </div>
+               <!-- Description -->
                <div class="form-control">
                   <label>Description</label>
                   <textarea
@@ -56,6 +81,8 @@ export default {
       open: true,
       description: '',
       projectInput: 'Test',
+      usersInput: '',
+      users: [],
       level: 1,
    }),
    props: {
@@ -63,8 +90,50 @@ export default {
    },
    mounted: function() {
       this.projectInput = this.project;
+      this.users.push(this.$auth.user.email);
    },
    methods: {
+      removeUser(index) {
+         if (index != this.users.indexOf(this.$auth.user.email)) {
+            this.users = this.users.filter(function(value, i) {
+               return i != index;
+            });
+         }
+      },
+      async addUser() {
+         if (this.usersInput != '' && !this.users.includes(this.usersInput)) {
+            //Check that the user exists
+            const axios = require('axios');
+            const params =
+               '?confirm=confirm&type=checkUser&email=' + this.usersInput;
+            let data = '';
+
+            await axios
+               .get(
+                  'http://getdata-env.eba-ritmxapi.ap-southeast-2.elasticbeanstalk.com/' +
+                     params
+               )
+               .then(function(res) {
+                  if (res.data == '') {
+                     data = -1;
+                  } else {
+                     data = parseInt(JSON.parse(res.data).user_id);
+                  }
+               })
+               .catch(function(error) {
+                  // handle error
+                  console.log(error);
+               });
+
+            if (data != -1) {
+               this.users.push(this.usersInput);
+            } else {
+               alert(
+                  `Ther is no registered user with the email: '${this.usersInput}'`
+               );
+            }
+         }
+      },
       closeWindow() {
          if (this.description != '') {
             if (
@@ -90,7 +159,8 @@ export default {
          const axios = require('axios');
 
          //Get Projects
-         const params =
+         let task_id = 'Not set';
+         let params =
             '?level=' +
             this.level +
             '&description=' +
@@ -105,12 +175,25 @@ export default {
                   params
             )
             .then(function(response) {
-               console.log(response);
+               task_id = parseInt(response.data.task_id);
             })
             .catch(function(error) {
                // handle error
                console.log(error);
             });
+
+         await this.users.forEach(async (email) => {
+            params = '?confirm=confirm&email=' + email + '&id=' + task_id;
+            await axios
+               .get(
+                  'http://addlink-env.eba-apf3iftr.ap-southeast-2.elasticbeanstalk.com/' +
+                     params
+               )
+               .catch(function(error) {
+                  // handle error
+                  console.log(error);
+               });
+         });
       },
    },
 };

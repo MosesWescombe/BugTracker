@@ -55,10 +55,7 @@
          <v-row justify="center" align="center">
             <v-flex xs9>
                <v-icon
-                  @click="
-                     tasks = [];
-                     getTasks();
-                  "
+                  @click="refresh()"
                   large
                   style="margin-left: calc(50% - 30px); margin-bottom: 15px"
                   >refresh</v-icon
@@ -129,6 +126,13 @@ export default {
       this.getTasks();
    },
    methods: {
+      //Refresh
+      async refresh() {
+         this.tasks = [];
+         this.links = [];
+         await this.getProjects();
+         this.getTasks();
+      },
       // Log the user in
       login() {
          this.$auth.loginWithRedirect();
@@ -153,9 +157,11 @@ export default {
          let data = null;
 
          //Get Projects
+         const params = '?confirm=confirm&email=' + this.$auth.user.email;
          await axios
             .get(
-               'http://getprojects-env-1.eba-2t6dy9pv.ap-southeast-2.elasticbeanstalk.com/'
+               'http://getprojects-env-1.eba-2t6dy9pv.ap-southeast-2.elasticbeanstalk.com/' +
+                  params
             )
             .then(function(response) {
                data = response.data;
@@ -177,11 +183,15 @@ export default {
          let data = null;
 
          //Get Tasks
+         const params =
+            '?confirm=confirm&email=' +
+            this.$auth.user.email +
+            '&project=' +
+            this.openTab;
          await axios
             .get(
                'http://gettasks-env.eba-8nbkpgir.ap-southeast-2.elasticbeanstalk.com' +
-                  '?project=' +
-                  this.openTab
+                  params
             )
             .then(function(response) {
                data = response.data;

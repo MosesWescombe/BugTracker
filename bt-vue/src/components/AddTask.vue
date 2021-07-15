@@ -78,6 +78,7 @@
 <script>
 export default {
    data: () => ({
+      phpURL: 'https://localhost/BugTracker/index.php',
       open: true,
       description: '',
       projectInput: 'Test',
@@ -105,14 +106,11 @@ export default {
             //Check that the user exists
             const axios = require('axios');
             const params =
-               '?confirm=confirm&type=checkUser&email=' + this.usersInput;
+               '?confirm=confirm&type=getUserID&email=' + this.usersInput;
             let data = '';
 
             await axios
-               .get(
-                  'http://getdata-env.eba-ritmxapi.ap-southeast-2.elasticbeanstalk.com/' +
-                     params
-               )
+               .get(this.phpURL + params)
                .then(function(res) {
                   if (res.data == '') {
                      data = -1;
@@ -158,7 +156,7 @@ export default {
       async addTask() {
          const axios = require('axios');
 
-         //Get Projects
+         //Add Task
          let task_id = 'Not set';
          let params =
             '?level=' +
@@ -167,13 +165,10 @@ export default {
             this.description +
             '&project=' +
             this.projectInput +
-            '&confirm=confirm';
+            '&confirm=confirm&type=addTask';
 
          await axios
-            .get(
-               'http://addtask-env-1.eba-ypi3dtjm.ap-southeast-2.elasticbeanstalk.com/' +
-                  params
-            )
+            .get(this.phpURL + params)
             .then(function(response) {
                task_id = parseInt(response.data.task_id);
             })
@@ -182,17 +177,17 @@ export default {
                console.log(error);
             });
 
+         //Add Links
          await this.users.forEach(async (email) => {
-            params = '?confirm=confirm&email=' + email + '&id=' + task_id;
-            await axios
-               .get(
-                  'http://addlink-env.eba-apf3iftr.ap-southeast-2.elasticbeanstalk.com/' +
-                     params
-               )
-               .catch(function(error) {
-                  // handle error
-                  console.log(error);
-               });
+            params =
+               '?confirm=confirm&type=addLink&email=' +
+               email +
+               '&id=' +
+               task_id;
+            await axios.get(this.phpURL + params).catch(function(error) {
+               // handle error
+               console.log(error);
+            });
          });
       },
    },

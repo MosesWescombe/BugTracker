@@ -115,6 +115,7 @@ export default {
       AddTask,
    },
    data: () => ({
+      phpURL: 'https://localhost/BugTracker/index.php',
       links: [],
       tasks: [],
       openTab: '',
@@ -157,12 +158,10 @@ export default {
          let data = null;
 
          //Get Projects
-         const params = '?confirm=confirm&email=' + this.$auth.user.email;
+         const params =
+            '?confirm=confirm&type=getProjects&email=' + this.$auth.user.email;
          await axios
-            .get(
-               'http://getprojects-env-1.eba-2t6dy9pv.ap-southeast-2.elasticbeanstalk.com/' +
-                  params
-            )
+            .get(this.phpURL + params)
             .then(function(response) {
                data = response.data;
             })
@@ -184,15 +183,12 @@ export default {
 
          //Get Tasks
          const params =
-            '?confirm=confirm&email=' +
+            '?confirm=confirm&type=getTasks&email=' +
             this.$auth.user.email +
             '&project=' +
             this.openTab;
          await axios
-            .get(
-               'http://gettasks-env.eba-8nbkpgir.ap-southeast-2.elasticbeanstalk.com' +
-                  params
-            )
+            .get(this.phpURL + params)
             .then(function(response) {
                data = response.data;
             })
@@ -216,17 +212,12 @@ export default {
          const axios = require('axios');
 
          //Delete Task
-         const params = '?id=' + id;
+         const params = '?confirm=confirm&type=deleteTask&id=' + id;
          console.log(params);
-         await axios
-            .get(
-               'http://deletetask-env-1.eba-xcp2bmju.ap-southeast-2.elasticbeanstalk.com/' +
-                  params
-            )
-            .catch(function(error) {
-               // handle error
-               console.log(error);
-            });
+         await axios.get(this.phpURL + params).catch(function(error) {
+            // handle error
+            console.log(error);
+         });
 
          //If a project has been emptied
          if (this.tasks.length <= 1) {

@@ -148,7 +148,7 @@ export default {
          if (this.userLogedIn) {
             this.refresh();
          }
-      }, 200);
+      }, 400);
    },
    methods: {
       //Refresh

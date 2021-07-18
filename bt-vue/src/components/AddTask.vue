@@ -51,11 +51,7 @@
                <!-- Description -->
                <div class="form-control">
                   <label>Description</label>
-                  <textarea
-                     type="text"
-                     v-model="description"
-                     name="description"
-                  />
+                  <textarea v-model="description" name="description" />
                </div>
             </form>
 

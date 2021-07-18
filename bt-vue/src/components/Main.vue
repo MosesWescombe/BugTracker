@@ -1,16 +1,5 @@
 <template>
    <v-app id="inspire">
-      <v-btn
-         id="control"
-         @click="addWindow = !addWindow"
-         x-large
-         rounded
-         dark
-         class="green darken-3"
-      >
-         <i class="large material-icons" style="font-size: 50px">add</i>
-      </v-btn>
-
       <v-app-bar app color="white" flat>
          <v-avatar
             :color="$vuetify.breakpoint.smAndDown ? 'black' : 'transparent'"
@@ -50,8 +39,18 @@
             <img :src="this.$auth.user.picture" />
          </v-avatar>
       </v-app-bar>
-
-      <v-main class="grey lighten-3 px-10">
+      <v-btn
+         id="control"
+         v-if="this.userLogedIn"
+         @click="addWindow = !addWindow"
+         x-large
+         rounded
+         dark
+         class="green darken-3"
+      >
+         <i class="large material-icons" style="font-size: 50px">add</i>
+      </v-btn>
+      <v-main class="grey lighten-3 px-10" v-if="this.userLogedIn">
          <v-row justify="center" align="center">
             <v-flex xs9>
                <v-icon
@@ -90,11 +89,30 @@
                         >
                      </v-card-actions>
                   </v-card>
-                  <v-container dark class="grey"></v-container>
                </div>
             </v-flex>
          </v-row>
       </v-main>
+
+      <v-main class="grey lighten-3 px-10" v-if="!this.userLogedIn">
+         <v-row justify="center" align="center">
+            <v-flex xs9>
+               <v-content align="center">
+                  <h1>Please Log-In To See Your Projects</h1>
+                  <v-btn
+                     dark
+                     class="mt-7"
+                     x-large
+                     rounded
+                     color="green"
+                     @click="login"
+                     >Log-In</v-btn
+                  >
+               </v-content>
+            </v-flex>
+         </v-row>
+      </v-main>
+
       <AddTask
          @closed="
             addWindow = false;
@@ -115,13 +133,22 @@ export default {
       AddTask,
    },
    data: () => ({
+      userLogedIn: false,
       links: [],
       tasks: [],
       openTab: '',
       addWindow: false,
    }),
+   beforeUpdate: function() {
+      this.userLogedIn = this.$auth.user != undefined;
+   },
    mounted: async function() {
-      this.refresh();
+      //Wait for user to be confirmed
+      await setTimeout(() => {
+         if (this.userLogedIn) {
+            this.refresh();
+         }
+      }, 200);
    },
    methods: {
       //Refresh

@@ -98,8 +98,7 @@
       <AddTask
          @closed="
             addWindow = false;
-            getProjects();
-            getTasks();
+            refresh();
          "
          v-if="addWindow"
          :project="openTab"
@@ -109,29 +108,30 @@
 
 <script>
 import AddTask from './AddTask.vue';
+const phpURL = 'https://localhost/BugTracker/index.php';
 
 export default {
    components: {
       AddTask,
    },
    data: () => ({
-      phpURL: 'https://localhost/BugTracker/index.php',
       links: [],
       tasks: [],
       openTab: '',
       addWindow: false,
    }),
    mounted: async function() {
-      await this.getProjects();
-      this.openTab = this.links[0];
-      this.getTasks();
+      this.refresh();
    },
    methods: {
       //Refresh
       async refresh() {
-         this.tasks = [];
-         this.links = [];
          await this.getProjects();
+
+         if (!this.links.includes(this.openTab)) {
+            this.openTab = this.links[0];
+         }
+
          this.getTasks();
       },
       // Log the user in
@@ -161,7 +161,7 @@ export default {
          const params =
             '?confirm=confirm&type=getProjects&email=' + this.$auth.user.email;
          await axios
-            .get(this.phpURL + params)
+            .get(phpURL + params)
             .then(function(response) {
                data = response.data;
             })
@@ -188,7 +188,7 @@ export default {
             '&project=' +
             this.openTab;
          await axios
-            .get(this.phpURL + params)
+            .get(phpURL + params)
             .then(function(response) {
                data = response.data;
             })
@@ -211,10 +211,12 @@ export default {
       async deleteTask(id) {
          const axios = require('axios');
 
+         const length = this.tasks.length;
+
          //Delete Task
          const params = '?confirm=confirm&type=deleteTask&id=' + id;
          console.log(params);
-         await axios.get(this.phpURL + params).catch(function(error) {
+         await axios.get(phpURL + params).catch(function(error) {
             // handle error
             console.log(error);
          });
@@ -225,8 +227,12 @@ export default {
          }
 
          //Refresh
-         await this.getProjects();
-         this.getTasks();
+         if (length <= 1) {
+            await this.getProjects();
+            this.updateTab();
+         } else {
+            this.getTasks();
+         }
       },
    },
 };

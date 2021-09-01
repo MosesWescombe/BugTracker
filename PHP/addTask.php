@@ -5,9 +5,9 @@ if (isset($_GET['project']) && isset($_GET['description']) && isset($_GET['level
     $project = "'" . $_GET['project'] . "'";
     $description = "'" . $_GET['description'] . "'";
     $level = "'" . $_GET['level'] . "'";
-    $result = $conn->query("INSERT INTO Tasks(level, project, description) VALUES ($level, $project, $description);");
+    $result = $conn->query("INSERT INTO tasks(level, project, description) VALUES ($level, $project, $description);");
     
-    $result = $conn->query("SELECT * FROM Tasks WHERE  project = $project AND level = $level AND description = $description");
+    $result = $conn->query("SELECT * FROM tasks WHERE  project = $project AND level = $level AND description = $description");
     
     //Return data
     $return = [];

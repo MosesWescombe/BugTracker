@@ -3,7 +3,7 @@
 if (isset($_GET['email'])) {
     //Return a user ID, if they exist.
     $email = $_GET['email'];
-    $result = $conn->query("SELECT user_id FROM Users WHERE email = '$email'");
+    $result = $conn->query("SELECT user_id FROM users WHERE email = '$email'");
 
     //Return data
     $return = [];

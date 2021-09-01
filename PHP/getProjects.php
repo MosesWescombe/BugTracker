@@ -3,7 +3,7 @@
 if (isset($_GET['email'])) {
   //Get all users
   $email = $_GET['email'];
-  $result = $conn->query("SELECT DISTINCT Tasks.project FROM Tasks JOIN Links ON Tasks.task_id = Links.task_id AND Links.user_email = '$email'");
+  $result = $conn->query("SELECT DISTINCT tasks.project FROM tasks JOIN links ON tasks.task_id = links.task_id AND links.user_email = '$email'");
 
   //Return data
   $resultArray = [];

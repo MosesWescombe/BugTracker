@@ -40,10 +40,10 @@ function addLink($conn) {
 //Main
 if ($_GET['confirm'] == 'confirm') {
     //Set Connection variables
-    $servername = "bt-database.cpferrualvuv.ap-southeast-2.rds.amazonaws.com";
-    $username = "admin";
-    $password = "Robots16";
-    $database = 'BugTracker';
+    $servername = "localhost";
+    $username = "viewer";
+    $password = "ServerIsEpic16";
+    $database = 'bugtracker';
 
     // Create connection
     $conn = new mysqli($servername, $username, $password, $database);
